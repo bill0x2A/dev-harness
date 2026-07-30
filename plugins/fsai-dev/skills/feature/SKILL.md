@@ -1,7 +1,7 @@
 ---
 name: feature
 description: Pipeline conductor. Use when the user says "/feature <task>", "run the pipeline", "start a pipeline for X", or "build this feature end to end". Composes fsai-dev phase skills into a gated pipeline; proposes phases, runs them in order, stops only at gates.
-version: 0.2.0
+version: 0.3.0
 ---
 
 # /feature: pipeline conductor
@@ -91,6 +91,27 @@ When the last phase is `done`: set Status: done, then summarize the run from the
 what shipped, artifacts, decisions made at gates, anything skipped and why, open follow-ups.
 If the pipeline is abandoned mid-run, set Status: abandoned with a Decision Log entry rather
 than leaving it `running`.
+
+### Continuous improvement
+
+At completion (Status: done or abandoned), close the skill-evolution loop. The skill-evolution
+PostToolUse hook has already appended `pending` stubs to the target repo's
+`.claude/skill-evolution/observations.jsonl` for each phase invocation; leave those lines alone.
+Append one assessed observation per executed phase to the same file (append-only; create the
+directory if missing), following skill-evolution's observation schema:
+- `skillName` exactly as invoked (`fsai-dev:<phase-id>`), `pluginName` `"fsai-dev"`.
+- `taskSummary`: the manifest's Task line, compressed to one sentence.
+- `outcome`: `completed` if the phase reached `done` cleanly; `partial` if it needed waivers,
+  manual fixes, or gate-driven rework; `failed` if it ended `blocked` on its own defect;
+  `abandoned` if the run was abandoned while it was live.
+- `userCorrections`: count of Decision Log entries where the user changed that phase's output.
+- `errors`: waived findings and blocked reasons. `notes`: relevant Surprises entries plus any
+  friction with the phase skill itself (missing guidance, wrong defaults, contract mismatch).
+
+Then scan the jsonl for fsai-dev phases with repeated `partial`/`failed` outcomes across runs.
+If any, suggest `skill-evolution:skill-amend` for them in the run summary, and note that
+amendments to fsai-dev skills land in the plugin repo (edit, bump the skill version, push),
+never in the installed cache copy.
 
 ## Conduct rules
 

@@ -6,7 +6,7 @@ Claude Code plugins for FSAI development.
 
 ```bash
 claude plugin marketplace add bill0x2A/dev-harness
-claude plugin install fsai-dev@fsai
+claude plugin install fsai-dev@dev-harness
 ```
 
 ## Plugins

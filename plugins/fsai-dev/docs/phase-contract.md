@@ -52,3 +52,7 @@ Default gate assignments across the catalog: pipeline proposal, plan sign-off, d
 | `staging-e2e` | Post-merge staging verification | n/a (CI/scheduled agent, not a session phase) | v2 |
 
 v2 phases are listed so the conductor can name them as explicitly skipped rather than pretending they don't exist.
+
+## Continuous improvement
+
+The framework feeds the `skill-evolution` plugin where installed. Its PostToolUse hook already records a `pending` observation stub in the target repo's `.claude/skill-evolution/observations.jsonl` for every phase-skill invocation; the conductor's completion step closes the loop by assessing each executed phase (outcome, gate edits as corrections, waivers and surprises as notes) so stubs don't rot at `pending`. When a phase accumulates bad outcomes, `skill-evolution:skill-amend` proposes evidence-based changes to that phase skill — amendments to skills in this plugin should land here (edit, bump the skill version, push), not in a local cache copy.
