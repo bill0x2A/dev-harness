@@ -17,6 +17,7 @@ The conductor must ensure `.agent/pipelines/` is in the target repo's `.gitignor
 
 Task: <one-paragraph statement of the task, in the user's words plus any clarifications>
 Started: <date>  Branch: <branch name>
+Delivery: single-pr | pr-train
 Status: proposed | running | blocked(<phase>) | done | abandoned
 
 ## Phases
@@ -29,7 +30,7 @@ Status: proposed | running | blocked(<phase>) | done | abandoned
 | 4 | implement | autonomous | pending | — |
 | 5 | arch-check | autonomous | pending | verdict below |
 | 6 | backend-testing | autonomous | pending | — |
-| 7 | pr | approve | pending | PR URL |
+| 7 | pr | approve | pending | PR URL(s) |
 | — | design-sync | — | skipped: no UI in this task | — |
 | — | e2e | — | skipped: v2, no suite exists yet | — |
 
@@ -52,7 +53,8 @@ Status: proposed | running | blocked(<phase>) | done | abandoned
 2. **Every phase in the catalog appears** — either in the pipeline or in the skipped rows. Silent omission is the failure mode this document exists to prevent.
 3. **Update at every phase boundary**, and mid-phase at any stopping point. If the session dies, the manifest is the handoff.
 4. **Gate responses go in the Decision Log** verbatim-ish ("Bill approved plan with change: drop the Slack notify wave").
-5. **Resume protocol**: on `/fsai-dev:feature` invocation, if a run directory for this task already exists, read `pipeline.md`, reconcile against reality (does the branch exist? do artifacts exist? is tsc green?), and continue from the first phase that is not `done`/`skipped` — do not re-propose the pipeline unless the task statement changed. Reconciling means downgrading statuses too: work recorded as `done` whose exit criteria no longer hold goes back to `built` or `in-progress`.
+5. **Delivery mode**: `single-pr` (default) ships the whole run through one terminal pr phase. `pr-train` ships each wave through its own pr invocation onto a declared integration surface (master or an integration branch); the manifest records one PR URL per wave. The plan phase declares the mode.
+6. **Resume protocol**: on `/fsai-dev:feature` invocation, if a run directory for this task already exists, read `pipeline.md`, reconcile against reality (does the branch exist? do artifacts exist? is tsc green?), and continue from the first phase that is not `done`/`skipped` — do not re-propose the pipeline unless the task statement changed. Reconciling means downgrading statuses too: work recorded as `done` whose exit criteria no longer hold goes back to `built` or `in-progress`.
 
 ## Program trackers
 

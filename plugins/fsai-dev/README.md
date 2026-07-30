@@ -14,16 +14,19 @@ Phases also work standalone: `/fsai-dev:research`, `/fsai-dev:grill`, `/fsai-dev
 
 | Phase | Purpose |
 |---|---|
-| `feature` | Conductor: propose, run, and resume pipelines |
+| `feature` | Conductor: propose, run, and resume pipelines (with a size floor: trivial fixes get a one-line minimal pipeline, no ceremony) |
+| `diagnose` | Reproduce and root-cause a bug into `diagnosis.md`; entry phase for bugfix runs |
 | `research` | API/approach research producing a decision doc with a recommendation |
 | `grill` | Interrogate the feature against domain language and docs into a sharpened spec |
 | `plan` | ExecPlan authoring (defers to target repo's PLANS.md), milestones as verifiable waves |
 | `implement` | Wave execution via subagents (sequential, or parallel across worktrees with file ownership), per-wave verification and checker runs |
 | `audit` | Adversarially verify a capability claim against the code (review-only, subagent-safe) |
+| `code-review` | Adversarial code review of a diff — logic bugs the rule checkers can't name (review-only, subagent-safe) |
 | `arch-check` | Backend diff vs the 3-layer architecture (review-only, subagent-safe) |
 | `design-system-check` | Frontend diff vs FSAI design system rules (review-only, subagent-safe) |
 | `backend-testing` | Write/run backend tests; encodes fsai test-lane knowledge and mock traps |
-| `pr` | PR creation per repo conventions (delegates to pr-description where installed) |
+| `frontend-testing` | Write/run frontend unit tests via the `*.utils.ts` node-env seam (fsai brand-dashboard) |
+| `pr` | PR creation per repo conventions; delivery-mode aware (`single-pr` or `pr-train`) |
 
 Planned (named in the catalog so runs can skip them explicitly, not silently): `design-sync` (MagicPath reconcile), `e2e` (Playwright), `prod-context` (Sentry/BetterStack), `staging-e2e` (CI, not a session phase).
 

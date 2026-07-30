@@ -34,15 +34,18 @@ Default gate assignments across the catalog: pipeline proposal, plan sign-off, d
 
 | Phase id | Purpose | Default gate | Status |
 |---|---|---|---|
+| `diagnose` | Reproduce and root-cause a bug into `diagnosis.md`; the entry phase for bugfix runs | notify (on root cause) | v1 |
 | `research` | API/library/approach research → decision doc with a recommendation | notify | v1 |
 | `grill` | Interrogate the feature idea against domain language and docs → sharpened spec | approve (spec sign-off) | v1 |
 | `plan` | Author an ExecPlan from the spec, broken into waves | approve (plan sign-off) | v1 (thin; defers to target repo's PLANS.md) |
 | `design-sync` | MagicPath pull/push + reconcile designs against spec | approve (design sign-off) | v2 (wraps existing `magicpath` skill) |
 | `implement` | Execute plan waves; per-wave verification; delegates code to subagents | autonomous, notify per wave | v1 |
+| `code-review` | General adversarial code review of a wave/branch diff — logic bugs the rule checkers can't see; runs as subagent | autonomous (findings block implement exit) | v1 |
 | `arch-check` | Backend diff vs 3-layer architecture + domain rules; runs as subagent | autonomous (findings block implement exit) | v1 |
 | `design-system-check` | Frontend diff vs FSAI design system rules; runs as subagent | autonomous (findings block implement exit) | v1 |
 | `audit` | Adversarially verify a capability claim against the code ("does this branch support X?"); runs as subagent | notify | v1 |
 | `backend-testing` | Write/run backend tests; encodes fsai lane knowledge and mock traps | autonomous | v1 |
+| `frontend-testing` | Write/run frontend unit tests; encodes brand-dashboard vitest node-env and test-seam knowledge | autonomous | v1 |
 | `e2e` | Playwright suites: write, run, fix | notify | v2 |
 | `pr` | Create the PR (delegates to `pr-description` skill where installed) | approve (pre-merge) | v1 |
 | `prod-context` | Pull Sentry/BetterStack context for bugfixing (folds into `diagnose`) | autonomous | v2 |

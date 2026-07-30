@@ -1,7 +1,7 @@
 ---
 name: implement
 description: Execute an approved ExecPlan wave by wave, delegating code changes to subagents and verifying each wave against its exit criteria plus architecture and design-system checkers. Supports sequential waves and parallel waves across git worktrees with file ownership. Use as the implement phase of an fsai-dev pipeline run.
-version: 0.2.0
+version: 0.3.0
 ---
 
 # Implement Phase
@@ -40,6 +40,14 @@ For waves the plan declares parallel (independent tickets, disjoint files):
 4. **Integrate**: merge all wave branches into a dedicated integration branch. Merge conflicts mean the ownership map was wrong; record that in Surprises and fix the map before the next wave.
 5. **Verify on the integration branch, in a dedicated worktree** with its own `node_modules` and built packages (never the user's checkout). Full battery: tsc, lint, unit suites, backend fast lane, and any e2e specs the plan names. Integration verification IS the wave's exit criterion; the wave is `done` only when the integration branch passes it.
 6. Checkers and findings-resolution as in the sequential flow, run against the integration diff.
+
+## pr-train delivery
+
+When the plan declares `pr-train`, the pr phase runs at each wave close instead of once at
+the end: after a wave's exit criteria pass and checker findings resolve, invoke `fsai-dev:pr`
+scoped to that wave. Wave exit then also requires that wave's PR open and the declared
+integration surface green after merge. The manifest's pr row accumulates one URL per wave.
+Default remains `single-pr`: one terminal pr phase after all waves close.
 
 ## Rules
 

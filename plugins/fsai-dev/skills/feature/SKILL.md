@@ -1,7 +1,7 @@
 ---
 name: feature
 description: Pipeline conductor. Use when the user says "/feature <task>", "run the pipeline", "start a pipeline for X", or "build this feature end to end". Composes fsai-dev phase skills into a gated pipeline; proposes phases, runs them in order, stops only at gates.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # /feature: pipeline conductor
@@ -27,10 +27,22 @@ warrants stricter or looser). Every catalog phase appears in the proposal: selec
 order, or skipped with a reason. v2 phases are always skipped-with-reason, never selected.
 
 Typical shapes:
-- Full-stack feature: research, grill, plan, implement, arch-check, design-system-check, backend-testing, pr
-- Backend-only: drop design-system-check
-- Bugfix: usually just implement, arch-check, backend-testing, pr; grill/plan only if the fix is architectural
+- Full-stack feature: research, grill, plan, implement, arch-check, design-system-check, code-review, backend-testing, frontend-testing, pr
+- Backend-only: drop design-system-check and frontend-testing
+- Bugfix: diagnose, implement, then the checkers for the surface (arch-check + backend-testing
+  for backend bugs; design-system-check + frontend-testing for frontend bugs), code-review, pr.
+  grill/plan only if the fix is architectural.
 - AI-engine: as backend-only; note in the proposal that ai-feature-loop runs inside implement
+
+The proposal also carries an initial delivery mode: `single-pr` (default) or `pr-train`
+(each wave ships its own PR onto a declared integration surface; see pipeline-manifest.md).
+The plan phase may change it later with a Decision Log entry.
+
+Size floor: when the expected change is trivially small (single root cause, roughly one
+commit, no schema or contract changes), do not create a run directory or a full proposal
+table. Offer a one-line minimal pipeline instead: diagnose, fix, test, pr. Escalate to a
+full run only if diagnosis reveals something bigger; escalation creates the run directory
+then, with the diagnosis as its first artifact.
 
 Present the proposal as a short table (phase, gate, reason if skipped) and get explicit
 approval via AskUserQuestion. Offer: approve as-is, edit phases, edit gates. The user editing
@@ -41,23 +53,26 @@ the list IS the mix-and-match mechanism; apply their edits verbatim and log them
 After approval, in this order:
 1. Ensure `.agent/pipelines/` is in the target repo's `.gitignore`; append it if missing.
 2. Create `.agent/pipelines/<yyyy-mm-dd>-<task-slug>/pipeline.md` from the template in
-   pipeline-manifest.md, with Status: running and the approved phase table.
+   pipeline-manifest.md, with Status: running, the Delivery line (pr-train also names the
+   integration surface), and the approved phase table.
 3. Create the working branch per repo convention (fsai: `claude/<ticket-id>-<short-desc>`;
    no ticket, no convention: `claude/<task-slug>`). Never work on the default branch.
 4. Log the approval (and any edits) in the Decision Log.
 
 ## 4. Execute
 
-Run selected phases in order. For each:
+Run selected phases in order. In `pr-train` delivery, the pr phase runs inside implement at
+each wave close instead of as a terminal phase; its manifest row accumulates one PR URL per
+wave. For each phase:
 1. Mark `in-progress` in the manifest.
 2. Verify the phase's declared Inputs exist. Missing input: mark `blocked(<reason>)`, surface
    it, stop the pipeline.
 3. Invoke the phase skill via the Skill tool: `fsai-dev:<phase-id>`. Phase skills may defer to
    repo-local or other-plugin skills; that is their business, not yours.
-4. Exception: `arch-check` and `design-system-check` run as parallel subagents against the
-   branch diff (they are subagent-safe by contract). Launch both in one message when both are
-   selected. Their findings must be resolved or explicitly waived (logged) before `implement`
-   exits.
+4. Exception: `arch-check`, `design-system-check`, and `code-review` run as parallel
+   subagents against the branch diff (they are subagent-safe by contract). Launch all that
+   are selected in one message. Their findings must be resolved or explicitly waived (logged)
+   before `implement` exits.
 5. Verify the phase's Exit criteria hold, then mark `done` and record its artifact. Never mark
    `done` on partial completion; use `blocked(<reason>)` and say so.
 6. Apply the gate:

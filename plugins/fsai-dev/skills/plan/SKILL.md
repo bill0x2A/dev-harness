@@ -1,7 +1,7 @@
 ---
 name: plan
 description: Author an ExecPlan from a sharpened spec or task statement, structured as independently verifiable waves. Use as the plan phase of an fsai-dev pipeline run, or standalone when asked to write an ExecPlan.
-version: 0.2.0
+version: 0.3.0
 ---
 
 # Plan Phase
@@ -22,6 +22,7 @@ Author an ExecPlan from the spec, broken into waves the implement phase can veri
 2. If the repo has no `PLANS.md`, use this fallback skeleton: purpose (what the user can do after, and how to see it working), milestones as waves, progress checklist, decision log.
 3. Read the spec and the code it touches. Name files by full repo-relative path. Resolve ambiguities in the plan; do not outsource decisions to the reader.
 4. Structure milestones as waves.
+5. Declare the delivery mode with a one-line reason: `single-pr` (default, one terminal PR for the run) or `pr-train` (each wave ships as its own PR). A pr-train plan names the integration surface (master or an integration branch) and which waves ship as which PRs. Record the mode on the manifest's Delivery line; changing the conductor's initial mode gets a Decision Log entry.
 
 ## Waves
 
