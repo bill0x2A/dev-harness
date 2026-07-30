@@ -1,7 +1,7 @@
 ---
 name: plan
 description: Author an ExecPlan from a sharpened spec or task statement, structured as independently verifiable waves. Use as the plan phase of an fsai-dev pipeline run, or standalone when asked to write an ExecPlan.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Plan Phase
@@ -34,6 +34,14 @@ Each wave states:
 - Dependencies on earlier waves, if any.
 
 A wave must be closeable on its own: the implement phase runs its exit-criteria commands and either closes the wave or blocks. If a milestone cannot be verified independently, split or reorder it until it can.
+
+### Parallel waves
+
+A wave whose tickets are independent may declare `mode: parallel`. It must then also declare:
+
+- **File ownership per ticket.** Name the contested files explicitly and give each exactly one owner (e.g. "3827 is the sole `Sidebar.tsx` owner; 3831 must not touch it"). A ticket needing another ticket's file moves to a later sub-wave.
+- **Sub-wave ordering with the reason**, when one ticket builds something others consume ("2a builds the mismatch-notice component; 2b's three consumers run after").
+- **The integration verification battery**: the commands run on the merged integration branch that close the wave. Individual branches passing is only `built`; the integration battery is the exit criterion.
 
 ## On completion
 

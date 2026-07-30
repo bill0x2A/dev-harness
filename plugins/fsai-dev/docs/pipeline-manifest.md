@@ -48,8 +48,17 @@ Status: proposed | running | blocked(<phase>) | done | abandoned
 
 ## Rules
 
-1. **Statuses**: `pending`, `in-progress`, `done`, `skipped: <reason>`, `blocked(<reason>)`. A phase is `done` only when its exit criteria (see its contract) hold.
+1. **Statuses**: `pending`, `in-progress`, `built`, `done`, `skipped: <reason>`, `blocked(<reason>)`. `built` means code exists but is unverified — the normal state of delegated subagent output. Verification is a distinct act: `built` moves to `done` only when the phase's exit criteria are actually checked and hold, never on the builder's claim alone. A phase is `done` only when its exit criteria (see its contract) hold.
 2. **Every phase in the catalog appears** — either in the pipeline or in the skipped rows. Silent omission is the failure mode this document exists to prevent.
 3. **Update at every phase boundary**, and mid-phase at any stopping point. If the session dies, the manifest is the handoff.
 4. **Gate responses go in the Decision Log** verbatim-ish ("Bill approved plan with change: drop the Slack notify wave").
-5. **Resume protocol**: on `/fsai-dev:feature` invocation, if a run directory for this task already exists, read `pipeline.md`, reconcile against reality (does the branch exist? do artifacts exist? is tsc green?), and continue from the first phase that is not `done`/`skipped` — do not re-propose the pipeline unless the task statement changed.
+5. **Resume protocol**: on `/fsai-dev:feature` invocation, if a run directory for this task already exists, read `pipeline.md`, reconcile against reality (does the branch exist? do artifacts exist? is tsc green?), and continue from the first phase that is not `done`/`skipped` — do not re-propose the pipeline unless the task statement changed. Reconciling means downgrading statuses too: work recorded as `done` whose exit criteria no longer hold goes back to `built` or `in-progress`.
+
+## Program trackers
+
+A pipeline run is task-sized. Multi-workstream efforts (launch sprints, epics) get a **program tracker**: a separate living document (conventionally `.agent/plans/<date>-<program>.md` in the target repo) that owns the workstream list, cross-run ordering and critical path, program-level decisions, and open questions. Runs and trackers link both ways:
+
+- Each workstream item that becomes real work spawns its own pipeline run; the run manifest carries a `Program: <path to tracker>` line under the task statement.
+- The tracker records the run directory next to the item it spawned, and rolls up each run's status using the same status vocabulary.
+
+The conductor executes one run at a time. Ordering *between* runs ("A4 must land before B starts") lives in the tracker, and the conductor checks the tracker's ordering constraints as an input precondition when a manifest declares a `Program:` line.

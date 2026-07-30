@@ -1,7 +1,7 @@
 ---
 name: backend-testing
 description: Write and run backend tests for the fsai repo. Encodes test-lane selection, mock traps, DB gotchas, and the write-run-fix loop. Use for any backend test work in fsai, and before diagnosing "regressions" that appear only in test runs.
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Backend Testing (fsai)
@@ -16,7 +16,13 @@ Phase skill for writing and running backend tests. The repo-specific knowledge b
 - **Exit criteria**: fast-lane suite green for touched domains (failure set no worse than merge-base baseline); no skipped tests without a recorded reason
 - **Default gate**: autonomous
 
-## 1. Lane selection
+## 1. Schema-parity preflight
+
+Before interpreting ANY red integration or e2e suite as a code failure, check migration parity: compare the migrations journal (`packages/supabase/migrations/meta/_journal.json` in fsai) against the applied migrations in the target DB (drizzle's applied-migrations table). Check BOTH the dev DB (:54322) and the fast-lane DB (:5434); they are different instances and drift independently.
+
+Drift is the first hypothesis, not the last. Dev-DB drift has twice presented as something else entirely: "pretty much all e2e failing" with nothing wrong in the specs, and funnel analytics silently recording zero rows with zero errors (fire-and-forget ingest swallows schema errors). A red suite on a drifted DB tells you nothing about the code. Apply the missing migrations, re-run, then diagnose whatever is still red.
+
+## 2. Lane selection
 
 Two lanes, different configs, different capabilities:
 
@@ -34,7 +40,7 @@ Rules of thumb:
 - **Baselines drift; never trust absolute counts.** Establish the baseline by running the same scope on the merge-base and compare failure SETS. The branch's failure set must be a subset of the baseline's.
 - `tsc:all` can false-green on stale turbo cache. Gate backend changes with `npx tsc --noEmit` from `apps/backend`. After editing SDK contracts, rebuild first: `yarn workspace @fsai/sdk build` (backend resolves `@fsai/sdk` from built dist).
 
-## 2. Mock traps
+## 3. Mock traps
 
 Both setup files (`src/test/setup.ts`, `src/test/setup-fast.ts`) eagerly call `createApp()`, resolving the app module graph BEFORE test-file `vi.mock` applies. Any module reached through the in-process app gets the REAL implementation in BOTH lanes. Symptoms: real permission assertion runs (`invalid input syntax for type uuid`), real service runs (`expected undefined to be 'brand'`).
 
@@ -52,7 +58,7 @@ Known unmockables and traps:
 - **CJS named-import boot crash**: `import { RestException } from 'twilio'` crashes the backend at boot under native ESM (cjs-module-lexer). Vitest interop and tsc both mask it; it only shows when the server boots. Use the default export (`twilio.RestException`). Applies to any CJS dep's non-lexer-visible named exports.
 - Frontend aside (brand-dashboard): vitest is node-env, no jsdom, no @testing-library. Importing a hook module crashes collection via shared-ui to headlessui. Test pure logic through a co-located `*.utils.ts` seam with type-only imports.
 
-## 3. Rules
+## 4. Rules
 
 - **NEVER run `db:reset`** (dev Supabase). Non-negotiable. The fast-lane container is separate and disposable; the safe fast-lane wipe is `docker compose -f apps/backend/docker-compose.fast.yml down -v`.
 - Integration/curl tests target `http://localhost:4000`, never prod. Backend must be running (`yarn dev:backend`).
@@ -61,15 +67,15 @@ Known unmockables and traps:
 - The dev DB (local Supabase, :54322) and the fast-lane DB (:5434) are different Postgres instances. **Migrate both** or `yarn dev` won't see new schema while tests do (silently absent UI, 500s).
 - Run the fast suite SOLO: never concurrent with another `test:fast`, `tsc:all`, or `build`. The shared fast-lane PG exhausts connections ("too many clients") and produces phantom failures across unrelated domains. Before diagnosing a regression that only appears in agent worktrees: check for concurrent runs, re-run solo.
 
-## 4. The write-run-fix loop
+## 5. The write-run-fix loop
 
-1. **Write** tests co-located with source. Prefer entity-layer mocks or singleton spies (Section 2) over module mocks. Follow the domain's existing test conventions.
+1. **Write** tests co-located with source. Prefer entity-layer mocks or singleton spies (Section 3) over module mocks. Follow the domain's existing test conventions.
 2. **Run scoped**: `yarn workspace @fsai/backend test:fast <path>`.
 3. **On fast-lane DB drift** ("relation already exists", drift-reapply from migration #1):
    - `docker compose -f apps/backend/docker-compose.fast.yml --project-directory apps/backend down -v`
    - then run `test:fast` DIRECTLY (its preflight starts the container and takes the clean fresh-database path). Do NOT run `yarn fast:up` in between: it restores a stale baseline dump that re-poisons the schema_sha.
    - If you must migrate manually: `up -d --wait` before `fast:migrate` (it does not wait for the DB itself).
    - Preflight bypass for PURE tests (no app-table queries), from `apps/backend`: `TEST_LANE=fast yarn vitest run --config vitest.fast.config.ts <path>`.
-4. **Fix** red tests. Distinguish real regressions from harness artifacts using Sections 2 and 3 before touching prod code.
+4. **Fix** red tests. Distinguish real regressions from harness artifacts using Sections 3 and 4 before touching prod code.
 5. **Verify scope-wide**: touched domains under `test:fast`, failure set vs merge-base baseline, plus `npx tsc --noEmit` in `apps/backend`.
 6. **Record** the verdict in the pipeline manifest: lane, scope, baseline comparison, skips with reasons.

@@ -41,6 +41,7 @@ Default gate assignments across the catalog: pipeline proposal, plan sign-off, d
 | `implement` | Execute plan waves; per-wave verification; delegates code to subagents | autonomous, notify per wave | v1 |
 | `arch-check` | Backend diff vs 3-layer architecture + domain rules; runs as subagent | autonomous (findings block implement exit) | v1 |
 | `design-system-check` | Frontend diff vs FSAI design system rules; runs as subagent | autonomous (findings block implement exit) | v1 |
+| `audit` | Adversarially verify a capability claim against the code ("does this branch support X?"); runs as subagent | notify | v1 |
 | `backend-testing` | Write/run backend tests; encodes fsai lane knowledge and mock traps | autonomous | v1 |
 | `e2e` | Playwright suites: write, run, fix | notify | v2 |
 | `pr` | Create the PR (delegates to `pr-description` skill where installed) | approve (pre-merge) | v1 |
