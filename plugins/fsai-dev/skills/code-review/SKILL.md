@@ -1,7 +1,7 @@
 ---
 name: code-review
-description: Code-review phase of the fsai-dev pipeline. General adversarial review of a wave or branch diff hunting logic bugs, data-clobbering, race conditions, permission gaps, and edge cases that named-rule checkers cannot see. Review mode only, reports findings with concrete failure scenarios, never fixes. Runs as a subagent given only a branch or diff. Use when asked to review a diff for bugs, or when invoked by the implement phase.
-version: 0.1.0
+description: Code-review phase of the fsai-dev pipeline. General adversarial review of a wave or branch diff hunting logic bugs, data-clobbering, race conditions, permission gaps, and edge cases that named-rule checkers cannot see. Review mode only, reports findings with concrete failure scenarios, never fixes. Runs as a subagent given only a branch or diff, or inline with refutation discipline when the executor cannot spawn subagents. Use when asked to review a diff for bugs, or when invoked by the implement phase.
+version: 0.2.0
 ---
 
 # Code-Review Phase
@@ -16,7 +16,7 @@ Adversarial review of changed code. The rule checkers (arch-check, design-system
 - **Exit criteria**: verdict written; every finding resolved or explicitly waived in the Decision Log.
 - **Default gate**: autonomous. Findings block the implement phase's exit.
 
-Subagent-safe: executable from only the inputs above, no conversational context.
+Subagent-safe: executable from only the inputs above, no conversational context. When the executing agent cannot spawn subagents (it is itself a fork or subagent), run the review inline instead, after implementation is complete. Inline mode has anchoring risk (reviewing code you wrote): re-derive intent from the diff alone, not from memory of writing it, and apply the refutation step to every finding without exception. State `reviewed inline (subagent unavailable)` in the verdict header so the manifest records the mode.
 
 ## Method
 

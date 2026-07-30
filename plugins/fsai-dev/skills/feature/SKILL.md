@@ -1,7 +1,7 @@
 ---
 name: feature
 description: Pipeline conductor. Use when the user says "/feature <task>", "run the pipeline", "start a pipeline for X", or "build this feature end to end". Composes fsai-dev phase skills into a gated pipeline; proposes phases, runs them in order, stops only at gates.
-version: 0.3.0
+version: 0.3.1
 ---
 
 # /feature: pipeline conductor
@@ -72,7 +72,9 @@ wave. For each phase:
 4. Exception: `arch-check`, `design-system-check`, and `code-review` run as parallel
    subagents against the branch diff (they are subagent-safe by contract). Launch all that
    are selected in one message. Their findings must be resolved or explicitly waived (logged)
-   before `implement` exits.
+   before `implement` exits. When subagent spawning is unavailable (the pipeline itself runs
+   inside a fork), subagent-safe phases run inline per their contracts; record the mode in the
+   manifest.
 5. Verify the phase's Exit criteria hold, then mark `done` and record its artifact. Never mark
    `done` on partial completion; use `blocked(<reason>)` and say so.
 6. Apply the gate:
