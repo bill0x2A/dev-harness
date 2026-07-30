@@ -5,7 +5,7 @@ Claude Code plugins for FSAI development.
 ## Install
 
 ```bash
-claude plugin marketplace add franchiseai/fsai-claude-plugins
+claude plugin marketplace add bill0x2A/dev-harness
 claude plugin install fsai-dev@fsai
 ```
 
