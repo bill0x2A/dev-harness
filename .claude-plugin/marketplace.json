@@ -1,0 +1,14 @@
+{
+  "name": "fsai",
+  "owner": {
+    "name": "Bill",
+    "email": "bill@franchisesystems.ai"
+  },
+  "plugins": [
+    {
+      "name": "fsai-dev",
+      "source": "./plugins/fsai-dev",
+      "description": "Composable development pipeline for FSAI: phase skills with contracts, a per-task pipeline manifest, and a /feature conductor that selects phases, runs them, and stops at gates."
+    }
+  ]
+}
