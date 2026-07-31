@@ -1,7 +1,7 @@
 ---
 name: implement
 description: Execute an approved ExecPlan wave by wave, delegating code changes to subagents and verifying each wave against its exit criteria plus architecture and design-system checkers. Supports sequential waves and parallel waves across git worktrees with file ownership. Use as the implement phase of an fsai-dev pipeline run.
-version: 0.4.0
+version: 0.5.0
 ---
 
 # Implement Phase
@@ -23,7 +23,7 @@ Delegated output is `built`, never `done`. A subagent's green claim, or even a g
 For each wave, in plan order:
 
 1. Mark the wave in-progress in `pipeline.md`.
-2. Delegate the code changes to subagents. Do not write feature code inline: split the wave into parcels, brief each subagent with the plan context it needs, run independent parcels in parallel. Brief subagents to reuse existing code (search for prior art first) rather than duplicating logic inline.
+2. Delegate the code changes to subagents. Do not write feature code inline: split the wave into parcels, brief each subagent with the plan context it needs, run independent parcels in parallel. Subagents working from a written plan spawn `fresh` (give them the plan path, not its contents). Brief subagents to reuse existing code (search for prior art first) rather than duplicating logic inline.
 3. Review and integrate the returned changes. Mark the wave `built`. You own coherence across parcels; subagents do not see each other's work.
 4. Run the wave's exit-criteria commands from the plan. In fsai, `yarn tsc:all` and `yarn lint:all` are part of every wave's exit criteria regardless of what the plan says.
 5. Run applicable checkers as parallel subagents: `arch-check` for waves touching backend code, `design-system-check` for waves touching frontend code. Both, if the wave touches both.
@@ -35,11 +35,33 @@ For each wave, in plan order:
 For waves the plan declares parallel (independent tickets, disjoint files):
 
 1. **Check file ownership before fanning out.** The plan assigns every contested file exactly one owner per wave. A ticket that needs a file owned by another ticket moves to a later sub-wave; it does not share the file. Sub-waves also sequence producer/consumer splits: the ticket that builds a shared component runs in an earlier sub-wave than the tickets that consume it.
-2. **Fan out**: one subagent per ticket, each in its own git worktree on its own branch. Brief each with its ticket scope, its owned files, and the files it must NOT touch.
+2. **Fan out**: one `fresh` subagent per ticket, each in its own git worktree on its own branch. Brief each with its ticket scope, its owned files, and the files it must NOT touch.
 3. **Collect**: each returned branch is `built`. Run per-branch sanity (tsc on the touched packages) but do not certify branches individually.
 4. **Integrate**: merge all wave branches into a dedicated integration branch. Merge conflicts mean the ownership map was wrong; record that in Surprises and fix the map before the next wave.
 5. **Verify on the integration branch, in a dedicated worktree** with its own `node_modules` and built packages (never the user's checkout). Full battery: tsc, lint, unit suites, backend fast lane, and any e2e specs the plan names. Integration verification IS the wave's exit criterion; the wave is `done` only when the integration branch passes it.
 6. Checkers and findings-resolution as in the sequential flow, run against the integration diff.
+
+## Executors
+
+Each wave declares an executor. `claude` is the default and needs no note; waves are the
+execution tier, so they run on that tier's assigned model per the contract's Model routing.
+`codex` is a pilot: use it for mechanical waves with tight specs when the Claude pools are
+under pressure. Record the executor per wave in `pipeline.md`; a codex wave has no Claude
+model to record, so the executor is what goes in its place.
+
+Running a wave on `codex`:
+
+1. Run `codex exec` inside the wave's worktree, passing the wave spec, the wave's file-ownership
+   list, and its exit-criteria commands (pipe the brief on stdin when it is long).
+2. Take the returned diff through the same checkers, exit-criteria commands, and findings
+   resolution as a `claude` wave. That is the safety property: the checker phases read a diff
+   with no conversational context, so a foreign diff faces identical gates.
+3. The wave stays `built` until your own verification passes. A foreign executor gets no more
+   trust than a delegated subagent, and no less.
+
+Never route `diagnose`, `grill`, `plan`, or any checker to codex: they depend on phase skills
+and repo knowledge the external engine does not have. Do not substitute `codex exec review`
+for the `code-review` phase; our checkers encode fsai rules a generic reviewer misses.
 
 ## pr-train delivery
 

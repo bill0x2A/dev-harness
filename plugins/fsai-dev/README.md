@@ -33,3 +33,7 @@ Planned (named in the catalog so runs can skip them explicitly, not silently): `
 ## Trust dial
 
 Gates are per-run data, not baked-in behavior. Overnight autonomous run: flip everything to `notify`. Risky change: add `approve` gates. Same skills either way.
+
+## Model routing and executors
+
+Phases are assigned a model by cognitive demand: `fable` for judgment (diagnose, code-review, audit, grill, plan, research), `opus` for execution (implement waves, testing, rule checkers, pr), `sonnet` for mechanical steps. Never `haiku`. When a tier's model is unavailable the conductor substitutes down `fable` > `opus` > `sonnet` and logs it, so a run never stalls on one dry quota; the manifest records which model actually ran each phase. Phases spawn as `fork` (needs conversation context: grill, plan, research) or `fresh` (needs only its declared Inputs: every subagent-safe phase, implement waves, testing, pr). The `implement` phase can execute a wave with an alternate engine (`codex`, pilot); foreign diffs face the same checker phases, which is what makes substitution safe. See [docs/phase-contract.md](docs/phase-contract.md).

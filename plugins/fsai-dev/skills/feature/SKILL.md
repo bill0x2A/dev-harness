@@ -1,7 +1,7 @@
 ---
 name: feature
 description: Pipeline conductor. Use when the user says "/feature <task>", "run the pipeline", "start a pipeline for X", or "build this feature end to end". Composes fsai-dev phase skills into a gated pipeline; proposes phases, runs them in order, stops only at gates.
-version: 0.3.1
+version: 0.4.0
 ---
 
 # /feature: pipeline conductor
@@ -54,7 +54,7 @@ After approval, in this order:
 1. Ensure `.agent/pipelines/` is in the target repo's `.gitignore`; append it if missing.
 2. Create `.agent/pipelines/<yyyy-mm-dd>-<task-slug>/pipeline.md` from the template in
    pipeline-manifest.md, with Status: running, the Delivery line (pr-train also names the
-   integration surface), and the approved phase table.
+   integration surface), an empty `Models:` line, and the approved phase table.
 3. Create the working branch per repo convention (fsai: `claude/<ticket-id>-<short-desc>`;
    no ticket, no convention: `claude/<task-slug>`). Never work on the default branch.
 4. Log the approval (and any edits) in the Decision Log.
@@ -68,15 +68,20 @@ wave. For each phase:
 2. Verify the phase's declared Inputs exist. Missing input: mark `blocked(<reason>)`, surface
    it, stop the pipeline.
 3. Invoke the phase skill via the Skill tool: `fsai-dev:<phase-id>`. Phase skills may defer to
-   repo-local or other-plugin skills; that is their business, not yours.
-4. Exception: `arch-check`, `design-system-check`, and `code-review` run as parallel
-   subagents against the branch diff (they are subagent-safe by contract). Launch all that
-   are selected in one message. Their findings must be resolved or explicitly waived (logged)
-   before `implement` exits. When subagent spawning is unavailable (the pipeline itself runs
-   inside a fork), subagent-safe phases run inline per their contracts; record the mode in the
-   manifest.
+   repo-local or other-plugin skills; that is their business, not yours. Spawn it with the
+   model its tier assigns and the agent kind it gets, both per the contract's Model routing
+   and Agent kind sections. If that model is unavailable or its pool is exhausted, walk the
+   substitution order to the next available model, log the substitution in the Decision Log,
+   and continue. A run never stalls because one pool is dry.
+4. Exception: `arch-check`, `design-system-check`, and `code-review` spawn as parallel
+   `fresh` agents against the branch diff (they are subagent-safe by contract, so they get
+   artifact paths, not artifact contents). Launch all that are selected in one message. Their
+   findings must be resolved or explicitly waived (logged) before `implement` exits. When
+   subagent spawning is unavailable (the pipeline itself runs inside a fork), subagent-safe
+   phases run inline per their contracts; record the mode in the manifest.
 5. Verify the phase's Exit criteria hold, then mark `done` and record its artifact. Never mark
-   `done` on partial completion; use `blocked(<reason>)` and say so.
+   `done` on partial completion; use `blocked(<reason>)` and say so. Update the manifest's
+   `Models:` line with the model that actually ran the phase.
 6. Apply the gate:
    - `approve`: set phase and pipeline Status to `blocked(gate)`, end your turn with a concise
      summary of the artifact and the specific question needing an answer.
@@ -109,6 +114,9 @@ directory if missing), following skill-evolution's observation schema:
 - `userCorrections`: count of Decision Log entries where the user changed that phase's output.
 - `errors`: waived findings and blocked reasons. `notes`: relevant Surprises entries plus any
   friction with the phase skill itself (missing guidance, wrong defaults, contract mismatch).
+  When the phase ran on anything other than its tier-assigned model, say which model ran it.
+  Without that, a weak result from a substitute model reads as a weak phase skill and the
+  amendment loop draws the wrong conclusion.
 
 Then scan the jsonl for fsai-dev phases with repeated `partial`/`failed` outcomes across runs.
 If any, suggest `skill-evolution:skill-amend` for them in the run summary, and note that

@@ -18,6 +18,7 @@ The conductor must ensure `.agent/pipelines/` is in the target repo's `.gitignor
 Task: <one-paragraph statement of the task, in the user's words plus any clarifications>
 Started: <date>  Branch: <branch name>
 Delivery: single-pr | pr-train (independent | stacked)
+Models: <phase>=<model actually used>, ... (tier-assigned per phase; note any substitution and why)
 Status: proposed | running | blocked(<phase>) | done | abandoned
 
 ## Phases

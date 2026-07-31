@@ -53,6 +53,36 @@ Default gate assignments across the catalog: pipeline proposal, plan sign-off, d
 
 v2 phases are listed so the conductor can name them as explicitly skipped rather than pretending they don't exist.
 
+## Model routing
+
+Phases are assigned a model by cognitive demand. Never `haiku`.
+
+- **Judgment → `fable`**: `diagnose`, `code-review`, `audit`, `grill`, `plan`, `research`. These generate hypotheses, construct failure scenarios, and make architecture decisions. A weaker model fails invisibly here: a bad root cause reads exactly like a good one.
+- **Execution → `opus`**: `implement` waves, `backend-testing`, `frontend-testing`, `arch-check`, `design-system-check`, `pr`. These work against an already-decided design or a named rule list. The `code-review` / rule-checker split exists precisely because the first is judgment and the second is matching.
+- **Mechanical → `sonnet`**: inventory sweeps, schema-parity preflight, manifest bookkeeping, and any phase step that is search-and-tabulate rather than decide.
+
+These pools have independent quotas, so exhaustion is an availability problem, not a cost one. When a tier's model is unavailable, walk the preference order `fable` > `opus` > `sonnet` to the next available model, log the substitution in the Decision Log, and continue: a run must never stall because one pool is dry.
+
+Record the model that actually ran each phase in the manifest's `Models:` line. This matters for the feedback loop: when a phase produces weak results, the observation must distinguish a bad phase skill from a phase that ran on a substitute model.
+
+A run may pin a phase to a specific model (Decision Log entry required); the tier assignment is the default.
+
+## Agent kind
+
+Phases run as one of two agent kinds, which is a real cost lever because a fork inherits the parent's entire conversation context:
+
+- **fork** — needs the conversation's design rationale: `grill`, `plan`, `research`, and any phase resuming mid-discussion.
+- **fresh** — needs only its declared Inputs: every subagent-safe phase (`arch-check`, `design-system-check`, `code-review`, `audit`), plus `implement` waves working from a written plan, `backend-testing`, `frontend-testing`, `pr`, and mechanical sweeps.
+
+Subagent-safe by contract already means "executable from Inputs alone", so those phases must run `fresh` unless a run documents why not. When spawning `fresh`, pass the artifact paths (not the artifacts' contents) so the agent reads what it needs.
+
+## Executor substrates
+
+The `implement` phase can execute a wave with a different engine. The contract boundary makes this safe: a wave takes a spec in and produces a diff out, and the checker phases run on diffs with no conversational context, so a foreign diff faces the same gates.
+
+- **`claude`** (default) — phase skills, repo skills, and this plugin's conventions all apply.
+- **`codex`** (pilot) — `codex exec` in the wave's worktree, given the wave spec, its file-ownership list, and its exit-criteria commands. Use for mechanical waves with tight specs when Claude pools are under pressure. Never for `diagnose`, `grill`, `plan`, or the checkers: those depend on skills and repo knowledge the external engine does not have. Do not substitute `codex exec review` for `code-review`; our checkers encode fsai rules a generic reviewer misses. Record the executor per wave in the manifest.
+
 ## Continuous improvement
 
 The framework feeds the `skill-evolution` plugin where installed. Its PostToolUse hook already records a `pending` observation stub in the target repo's `.claude/skill-evolution/observations.jsonl` for every phase-skill invocation; the conductor's completion step closes the loop by assessing each executed phase (outcome, gate edits as corrections, waivers and surprises as notes) so stubs don't rot at `pending`. When a phase accumulates bad outcomes, `skill-evolution:skill-amend` proposes evidence-based changes to that phase skill — amendments to skills in this plugin should land here (edit, bump the skill version, push), not in a local cache copy.
