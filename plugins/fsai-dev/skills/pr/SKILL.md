@@ -1,7 +1,7 @@
 ---
 name: pr
 description: Create the pull request for a completed pipeline branch, delegating to the pr-description skill when installed. Use as the pr phase of an fsai-dev pipeline run.
-version: 0.2.0
+version: 0.3.0
 ---
 
 # PR Phase
@@ -33,7 +33,8 @@ Open the pull request for the implemented, tested branch.
 When the run's Delivery line is `pr-train`, this phase is invoked once per wave by implement, not as the terminal phase:
 
 - Scope the title and description to the wave (its scope statement and exit criteria), not the whole plan.
-- Target the plan's declared integration surface as the base branch.
-- Append the PR URL to the pr row in `pipeline.md`; the row holds one URL per wave.
+- In the `independent` substrate, target the plan's declared integration surface as the base branch.
+- In the `stacked` substrate, create the PR through `gh stack` rather than plain `gh pr create`; the base is the previous wave's branch and GitHub manages retargeting. Do not write manual "depends on #X" cross-links; the stack map renders the relationship.
+- Append the PR URL to the pr row in `pipeline.md`; the row holds one URL per wave, plus the stack order when stacked.
 - The input precondition relaxes to "this wave's exit criteria passed"; other waves may still be open.
-- The pre-merge approve gate applies per PR unless the run's gate table says otherwise.
+- The pre-merge approve gate applies per PR unless the run's gate table says otherwise. Stacked runs may gate per layer or at the top of the stack; when asking for top-of-stack approval, say explicitly that merging the top lands every unmerged layer below it, so the user knows the scope of a yes.

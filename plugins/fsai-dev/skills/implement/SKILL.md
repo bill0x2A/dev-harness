@@ -1,7 +1,7 @@
 ---
 name: implement
 description: Execute an approved ExecPlan wave by wave, delegating code changes to subagents and verifying each wave against its exit criteria plus architecture and design-system checkers. Supports sequential waves and parallel waves across git worktrees with file ownership. Use as the implement phase of an fsai-dev pipeline run.
-version: 0.3.0
+version: 0.4.0
 ---
 
 # Implement Phase
@@ -48,6 +48,18 @@ the end: after a wave's exit criteria pass and checker findings resolve, invoke 
 scoped to that wave. Wave exit then also requires that wave's PR open and the declared
 integration surface green after merge. The manifest's pr row accumulates one URL per wave.
 Default remains `single-pr`: one terminal pr phase after all waves close.
+
+In the `stacked` substrate (GitHub stacked PRs via `gh stack`):
+
+- Wave N's branch is created FROM wave N-1's branch, not the integration surface; the stack
+  order comes from the plan.
+- Wave close adds the branch to the stack via `gh stack` and invokes `fsai-dev:pr` for that
+  wave as above.
+- The top-of-stack worktree battery replaces the separate integration-branch verification:
+  the top of the stack contains every layer below it, so verifying it verifies the
+  composition. No integration branch is created.
+- First use in a repo is the preview probe: if the server rejects the stack, fall back to
+  the `independent` substrate, log the fallback in the Decision Log, and continue.
 
 ## Rules
 

@@ -26,7 +26,7 @@ Phases also work standalone: `/fsai-dev:research`, `/fsai-dev:grill`, `/fsai-dev
 | `design-system-check` | Frontend diff vs FSAI design system rules (review-only, subagent-safe) |
 | `backend-testing` | Write/run backend tests; encodes fsai test-lane knowledge and mock traps |
 | `frontend-testing` | Write/run frontend unit tests via the `*.utils.ts` node-env seam (fsai brand-dashboard) |
-| `pr` | PR creation per repo conventions; delivery-mode aware (`single-pr` or `pr-train`) |
+| `pr` | PR creation per repo conventions; delivery-mode aware (`single-pr`, `pr-train` independent or stacked via `gh stack`) |
 
 Planned (named in the catalog so runs can skip them explicitly, not silently): `design-sync` (MagicPath reconcile), `e2e` (Playwright), `prod-context` (Sentry/BetterStack), `staging-e2e` (CI, not a session phase).
 

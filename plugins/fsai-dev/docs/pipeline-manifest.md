@@ -17,7 +17,7 @@ The conductor must ensure `.agent/pipelines/` is in the target repo's `.gitignor
 
 Task: <one-paragraph statement of the task, in the user's words plus any clarifications>
 Started: <date>  Branch: <branch name>
-Delivery: single-pr | pr-train
+Delivery: single-pr | pr-train (independent | stacked)
 Status: proposed | running | blocked(<phase>) | done | abandoned
 
 ## Phases
@@ -53,7 +53,10 @@ Status: proposed | running | blocked(<phase>) | done | abandoned
 2. **Every phase in the catalog appears** — either in the pipeline or in the skipped rows. Silent omission is the failure mode this document exists to prevent.
 3. **Update at every phase boundary**, and mid-phase at any stopping point. If the session dies, the manifest is the handoff.
 4. **Gate responses go in the Decision Log** verbatim-ish ("Bill approved plan with change: drop the Slack notify wave").
-5. **Delivery mode**: `single-pr` (default) ships the whole run through one terminal pr phase. `pr-train` ships each wave through its own pr invocation onto a declared integration surface (master or an integration branch); the manifest records one PR URL per wave. The plan phase declares the mode.
+5. **Delivery mode**: `single-pr` (default) ships the whole run through one terminal pr phase. `pr-train` ships each wave through its own pr invocation, with a substrate chosen by the plan phase:
+   - `independent` — each wave's PR targets a declared integration surface (master or an integration branch); works everywhere; the manifest records one PR URL per wave.
+   - `stacked` — GitHub stacked PRs (public preview) via `gh stack`: wave N's branch is based on wave N−1's, PRs auto-retarget and rebase as lower layers merge, and the manifest records the stack order plus PR URLs. Verification simplifies: the top-of-stack worktree contains every layer below it, so the top-of-stack battery IS integration verification (no separate integration branch). Preview-gated: on first use in a repo, confirm the stack is accepted server-side; if not, fall back to `independent` and log it in the Decision Log. `independent` remains the mandatory fallback while the feature is in preview.
+   The plan phase declares mode and substrate; dependency-chained waves (shared file ownership) favor `stacked`, disjoint waves ship as independent PRs either way.
 6. **Resume protocol**: on `/fsai-dev:feature` invocation, if a run directory for this task already exists, read `pipeline.md`, reconcile against reality (does the branch exist? do artifacts exist? is tsc green?), and continue from the first phase that is not `done`/`skipped` — do not re-propose the pipeline unless the task statement changed. Reconciling means downgrading statuses too: work recorded as `done` whose exit criteria no longer hold goes back to `built` or `in-progress`.
 
 ## Program trackers
