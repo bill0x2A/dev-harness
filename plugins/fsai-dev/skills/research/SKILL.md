@@ -1,7 +1,7 @@
 ---
 name: research
 description: Research phase of the fsai-dev pipeline. Investigate candidate APIs, libraries, or approaches for a task and produce a decision doc with a single recommendation. Use when a task needs external research before planning, or when invoked by the /fsai-dev:feature conductor.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Research Phase
@@ -43,3 +43,12 @@ Produce a decision, not a survey. The artifact exists so the next phase (grill o
 - One recommendation. If two candidates are genuinely tied, say which you would pick anyway and put the tiebreaker question in open questions.
 - Keep `research.md` under two pages. Selectivity is the value.
 - Never let a subagent's summary stand in for a primary source on pricing or limits; re-verify anything surprising yourself.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

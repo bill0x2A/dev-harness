@@ -1,7 +1,7 @@
 ---
 name: implement
 description: Execute an approved ExecPlan wave by wave, delegating code changes to subagents and verifying each wave against its exit criteria plus architecture and design-system checkers. Supports sequential waves and parallel waves across git worktrees with file ownership. Use as the implement phase of an fsai-dev pipeline run.
-version: 0.5.0
+version: 0.6.0
 ---
 
 # Implement Phase
@@ -89,3 +89,12 @@ In the `stacked` substrate (GitHub stacked PRs via `gh stack`):
 - Exit-criteria failures are fixed, not narrated. Fixing red tests and type errors is in-scope autonomous work.
 - Plan deviations (a wave needs splitting, an approach does not survive contact with the code) go in the plan's Decision Log and Surprises sections as they happen.
 - Cannot meet a wave's exit criteria after honest attempts: mark the phase `blocked(<reason>)` in `pipeline.md` and surface it. Never close a wave with caveats buried in prose.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

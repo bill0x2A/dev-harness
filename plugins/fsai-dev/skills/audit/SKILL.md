@@ -1,7 +1,7 @@
 ---
 name: audit
 description: Adversarially verify a capability claim against actual code. Use for "audit this branch for X", "does this branch/code support X", "verify the claim that X", or as the audit phase of an fsai-dev pipeline run. Review mode only, reports a verdict, never fixes. Runs as a subagent given only the claim and a branch or diff.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Audit Phase
@@ -45,3 +45,12 @@ Close with a one-line verdict: claim holds / holds except <root causes> / does n
 - Never soften a does-not-work into "may need attention". Binary classification with evidence, or unverifiable with a reason.
 - A guard you expected but did not find is a finding too (e.g. an invalid state left unguarded). Report absences that the claim's safety depends on.
 - Scope is the claim. Adjacent bugs you trip over get one line in a "Noticed, out of scope" footer, not investigation.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

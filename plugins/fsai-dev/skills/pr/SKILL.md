@@ -1,7 +1,7 @@
 ---
 name: pr
 description: Create the pull request for a completed pipeline branch, delegating to the pr-description skill when installed. Use as the pr phase of an fsai-dev pipeline run.
-version: 0.3.0
+version: 0.4.0
 ---
 
 # PR Phase
@@ -38,3 +38,12 @@ When the run's Delivery line is `pr-train`, this phase is invoked once per wave 
 - Append the PR URL to the pr row in `pipeline.md`; the row holds one URL per wave, plus the stack order when stacked.
 - The input precondition relaxes to "this wave's exit criteria passed"; other waves may still be open.
 - The pre-merge approve gate applies per PR unless the run's gate table says otherwise. Stacked runs may gate per layer or at the top of the stack; when asking for top-of-stack approval, say explicitly that merging the top lands every unmerged layer below it, so the user knows the scope of a yes.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

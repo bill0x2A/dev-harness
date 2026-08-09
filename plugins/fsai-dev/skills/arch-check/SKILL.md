@@ -1,7 +1,7 @@
 ---
 name: arch-check
 description: Backend architecture checker for fsai. Reviews a diff against the 3-layer pattern (routes/controller/service/entity), SDK type rules, schema rules, and domain-module boundaries. Review mode only, reports findings, never refactors. Runs as a subagent given only a branch or diff.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # arch-check
@@ -58,3 +58,12 @@ or:
        Fix: <one-line concrete fix>.
 
 Severity ordering: layer violations and SDK-type violations first, naming last. If a finding is uncertain, say so in the finding rather than omitting it.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

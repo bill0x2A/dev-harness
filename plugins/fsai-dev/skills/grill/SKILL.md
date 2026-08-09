@@ -1,7 +1,7 @@
 ---
 name: grill
 description: Grill phase of the fsai-dev pipeline. Interrogation session that challenges a plan against the existing domain model, sharpens terminology, updates documentation (CONTEXT.md, ADRs) inline as decisions crystallise, and produces a sharpened spec. Use when the user wants to stress-test a feature idea against their project's language and documented decisions, or when invoked by the /fsai-dev:feature conductor.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Grill Phase
@@ -113,3 +113,12 @@ Record each resolved decision in `spec.md` in the run directory as it lands, in 
 The session ends when no challenged assumption remains unresolved and undeferred. Present `spec.md` for sign-off. In a pipeline under the `approve` gate: mark the phase `blocked(gate)` in the manifest, summarize the spec and any deferrals, and stop for approval. On approval, record the response in the Decision Log and mark the phase `done`.
 
 </supporting-info>
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

@@ -30,6 +30,10 @@ Phases also work standalone: `/fsai-dev:research`, `/fsai-dev:grill`, `/fsai-dev
 
 Planned (named in the catalog so runs can skip them explicitly, not silently): `design-sync` (MagicPath reconcile), `e2e` (Playwright), `prod-context` (Sentry/BetterStack), `staging-e2e` (CI, not a session phase).
 
+## Writing style
+
+Every phase writes its artifacts, verdicts, gate questions, and PR bodies in ASD-STE100 Simplified Technical English: short active sentences, one instruction per sentence, one meaning per word, no em dashes or idiom, vertical lists for steps. Code identifiers, file paths, and commands stay exact. Code and code comments follow the target repo's conventions. See [docs/phase-contract.md](docs/phase-contract.md).
+
 ## Trust dial
 
 Gates are per-run data, not baked-in behavior. Overnight autonomous run: flip everything to `notify`. Risky change: add `approve` gates. Same skills either way.

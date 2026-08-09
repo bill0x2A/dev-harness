@@ -29,6 +29,27 @@ Default gate assignments across the catalog: pipeline proposal, plan sign-off, d
 3. **Respect repo rules.** Phases defer to the target repo's CLAUDE.md, docs, and design system. This plugin encodes *process*; the repo encodes *rules*. Where a phase embeds repo knowledge (e.g. backend-testing lane traps), it must say which repo it applies to.
 4. **Checkers are subagent-safe.** Phases whose contract says "runs as subagent" must be executable from only their inputs (a diff, a spec path) with no conversational context.
 5. **Fail loudly.** A phase that cannot meet its exit criteria marks itself `blocked(<reason>)` in the manifest and surfaces it — it never marks itself done with caveats buried in prose.
+6. **Write in Simplified Technical English.** See the Writing style section below. It applies to every artifact, verdict, and gate question a phase produces.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English. This covers phase artifacts, manifest entries, verdict blocks, gate questions, PR bodies, and terminal summaries.
+
+- Keep sentences short. Use 20 words maximum for an instruction, 25 for a description.
+- Give one instruction in each sentence.
+- Use the active voice. Name the actor.
+- Use simple tenses. Prefer the present tense.
+- Use one word for one meaning. Keep the same term for the same thing across a whole run.
+- Do not build noun clusters of more than three words.
+- Keep the articles "the" and "a". Do not write telegraphic text.
+- Do not use em dashes, idiom, slang, or filler.
+- Use vertical lists for steps, findings, and options.
+- Keep paragraphs to six sentences or fewer.
+- Keep code identifiers, file paths, commands, and error strings exact. Never simplify them.
+
+Two things are out of scope. Code and code comments follow the target repo's conventions. Quoted material stays verbatim, including Decision Log entries that record a user's own words.
+
+This section exists because unclear phase output is a correctness problem, not a taste problem. A run is auditable only if a reader can tell what a phase decided without re-deriving it.
 
 ## Phase catalog
 

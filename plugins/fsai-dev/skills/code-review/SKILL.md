@@ -1,7 +1,7 @@
 ---
 name: code-review
 description: Code-review phase of the fsai-dev pipeline. General adversarial review of a wave or branch diff hunting logic bugs, data-clobbering, race conditions, permission gaps, and edge cases that named-rule checkers cannot see. Review mode only, reports findings with concrete failure scenarios, never fixes. Runs as a subagent given only a branch or diff, or inline with refutation discipline when the executor cannot spawn subagents. Use when asked to review a diff for bugs, or when invoked by the implement phase.
-version: 0.2.0
+version: 0.3.0
 ---
 
 # Code-Review Phase
@@ -46,3 +46,12 @@ Subagent-safe: executable from only the inputs above, no conversational context.
 - Review mode only: never edit code. Findings go to the implement phase (pipeline) or the user (standalone).
 - Report at most the findings that matter; ten weak findings bury two real ones.
 - If the diff is too large to review honestly in one pass, say so and review by file group; never silently sample.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

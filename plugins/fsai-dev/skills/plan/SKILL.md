@@ -1,7 +1,7 @@
 ---
 name: plan
 description: Author an ExecPlan from a sharpened spec or task statement, structured as independently verifiable waves. Use as the plan phase of an fsai-dev pipeline run, or standalone when asked to write an ExecPlan.
-version: 0.4.0
+version: 0.5.0
 ---
 
 # Plan Phase
@@ -50,3 +50,12 @@ A wave whose tickets are independent may declare `mode: parallel`. It must then 
 ## On completion
 
 Write `plan.md`, update `pipeline.md` (phase row, Decision Log for any choices made while planning), then stop at the gate: summarize the waves and the key decisions, and ask for sign-off. Do not commit `plan.md` to git; run-dir artifacts stay local.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

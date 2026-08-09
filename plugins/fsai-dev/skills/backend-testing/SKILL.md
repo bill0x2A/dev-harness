@@ -1,7 +1,7 @@
 ---
 name: backend-testing
 description: Write and run backend tests for the fsai repo. Encodes test-lane selection, mock traps, DB gotchas, and the write-run-fix loop. Use for any backend test work in fsai, and before diagnosing "regressions" that appear only in test runs.
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Backend Testing (fsai)
@@ -79,3 +79,12 @@ Known unmockables and traps:
 4. **Fix** red tests. Distinguish real regressions from harness artifacts using Sections 3 and 4 before touching prod code.
 5. **Verify scope-wide**: touched domains under `test:fast`, failure set vs merge-base baseline, plus `npx tsc --noEmit` in `apps/backend`.
 6. **Record** the verdict in the pipeline manifest: lane, scope, baseline comparison, skips with reasons.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

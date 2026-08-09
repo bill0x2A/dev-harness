@@ -1,7 +1,7 @@
 ---
 name: feature
 description: Pipeline conductor. Use when the user says "/feature <task>", "run the pipeline", "start a pipeline for X", or "build this feature end to end". Composes fsai-dev phase skills into a gated pipeline; proposes phases, runs them in order, stops only at gates.
-version: 0.4.0
+version: 0.5.0
 ---
 
 # /feature: pipeline conductor
@@ -131,3 +131,12 @@ never in the installed cache copy.
 - Between gates, work autonomously. Do not ask permission mid-phase; blocked-on-input is what
   `blocked(<reason>)` and gates are for.
 - Repo rules (CLAUDE.md, design system, migration rules) always win over process convenience.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".

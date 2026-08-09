@@ -1,7 +1,7 @@
 ---
 name: diagnose
 description: Diagnose phase of the fsai-dev pipeline. Disciplined diagnosis loop for hard bugs and performance regressions. Reproduce, minimise, hypothesise, instrument, fix, regression-test. Use when the user says "diagnose this" or "debug this", reports a bug, says something is broken/throwing/failing, describes a performance regression, or when invoked by the /fsai-dev:feature conductor as the entry phase of a bugfix run.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Diagnose Phase
@@ -130,3 +130,12 @@ Required before declaring done:
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message, so the next debugger learns
 
 **Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the `/improve-codebase-architecture` skill with the specifics. Make the recommendation **after** the fix is in, not before; you have more information now than when you started.
+
+## Writing style
+
+Write all prose in ASD-STE100 Simplified Technical English: short sentences (20 words for an
+instruction, 25 for a description), active voice, one instruction per sentence, simple tenses, one
+meaning per word, no noun clusters over three words, keep the articles, no em dashes, no idiom or
+filler, vertical lists for steps and findings. Keep code identifiers, file paths, commands, and
+error strings exact. Code and code comments follow the target repo's conventions, not this section.
+Full rules: `${CLAUDE_PLUGIN_ROOT}/docs/phase-contract.md` section "Writing style".
