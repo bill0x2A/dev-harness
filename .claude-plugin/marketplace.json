@@ -9,11 +9,6 @@
       "name": "fsai-dev",
       "source": "./plugins/fsai-dev",
       "description": "Composable development pipeline for FSAI: phase skills with contracts, a per-task pipeline manifest, and a /feature conductor that selects phases, runs them, and stops at gates."
-    },
-    {
-      "name": "fsai-brain",
-      "source": "./plugins/fsai-brain",
-      "description": "Ingestion skills for the fsai-brain vault: /capture (dev end-of-day sweep) and /ingest (route free text into structured notes). Reading needs no skill; the vault's CLAUDE.md is the guidance."
     }
   ]
 }
