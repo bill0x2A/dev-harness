@@ -1,0 +1,11 @@
+{
+  "name": "fsai-brain",
+  "version": "0.1.0",
+  "description": "Ingestion skills for the fsai-brain vault: an end-of-day capture sweep and a free-text ingest router. Reading the brain needs no skill; the vault's CLAUDE.md is the guidance.",
+  "author": {
+    "name": "Bill",
+    "email": "bill@franchisesystems.ai"
+  },
+  "license": "UNLICENSED",
+  "keywords": ["brain", "vault", "obsidian", "fsai", "knowledge"]
+}
