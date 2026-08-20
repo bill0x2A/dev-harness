@@ -1,7 +1,7 @@
 ---
 name: diagnose
 description: Diagnose phase of the fsai-dev pipeline. Disciplined diagnosis loop for hard bugs and performance regressions. Reproduce, minimise, hypothesise, instrument, fix, regression-test. Use when the user says "diagnose this" or "debug this", reports a bug, says something is broken/throwing/failing, describes a performance regression, or when invoked by the /fsai-dev:feature conductor as the entry phase of a bugfix run.
-version: 0.2.0
+version: 0.3.0
 ---
 
 # Diagnose Phase
@@ -14,7 +14,7 @@ When exploring the codebase, use the project's domain glossary to get a clear me
 
 - **Phase id**: `diagnose`
 - **Inputs**: a bug report or observed failing behavior (error message, wrong output, perf regression). Optionally production context (Sentry/BetterStack pulls) when available.
-- **Artifacts**: `diagnosis.md` in the run dir: repro steps, the feedback loop used, root cause with file:line evidence, fix direction. In the conductor's minimal bugfix mode there is no run dir; the diagnosis summary goes in the eventual PR description instead.
+- **Artifacts**: `diagnosis.md` in the run dir: repro steps, the feedback loop used, root cause with file:line evidence, fix direction, and a final "Class elimination" section (see Phase 6). In the conductor's minimal bugfix mode there is no run dir; the diagnosis summary and the class-elimination answer go in the eventual PR description instead.
 - **Exit criteria**: root cause demonstrated, not hypothesized: a repro exists and the correct hypothesis has been confirmed by instrumentation or bisection.
 - **Default gate**: notify on root cause.
 
@@ -129,7 +129,23 @@ Required before declaring done:
 - [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message, so the next debugger learns
 
-**Then ask: what would have prevented this bug?** If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the `/improve-codebase-architecture` skill with the specifics. Make the recommendation **after** the fix is in, not before; you have more information now than when you started.
+### Class elimination
+
+After the fix is verified, answer this question in `diagnosis.md`:
+
+> What deeper change could we make to eliminate this class of error entirely?
+
+Rules for the answer:
+
+1. Name a concrete mechanism, not an intention. Good answers change what the code can express: a type that makes the bad state unrepresentable, a lint rule, a schema constraint, a narrower API, a test seam that does not exist yet. "Be more careful with X" is not an answer; write "none found" instead and say why.
+2. Give a rough cost (hours, days, or "large refactor") and name the files or layer the change touches.
+3. Answer after the fix is in, not before. You know more now than when you started.
+
+**Ask always, act separately.** The answer never widens the current fix. Route it instead:
+
+- In a pipeline: the conductor surfaces it at the gate as a "class-elimination candidate". On approval it becomes a Linear ticket or a brain `Queue/` item, not extra scope for this run.
+- Standalone: state it in the summary and offer to file it. Do not implement it in the same change without the user's explicit yes.
+- If the change ships later and sets a standing rule, record it as a brain precedent so the class stays dead.
 
 ## Writing style
 

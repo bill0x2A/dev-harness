@@ -1,7 +1,7 @@
 ---
 name: code-review
 description: Code-review phase of the fsai-dev pipeline. General adversarial review of a wave or branch diff hunting logic bugs, data-clobbering, race conditions, permission gaps, and edge cases that named-rule checkers cannot see. Review mode only, reports findings with concrete failure scenarios, never fixes. Runs as a subagent given only a branch or diff, or inline with refutation discipline when the executor cannot spawn subagents. Use when asked to review a diff for bugs, or when invoked by the implement phase.
-version: 0.3.0
+version: 0.4.0
 ---
 
 # Code-Review Phase
@@ -40,6 +40,8 @@ Subagent-safe: executable from only the inputs above, no conversational context.
        2. ...
 
    `pass` when the hunt produced nothing that survived verification; say what was hunted so pass is meaningful.
+
+7. **Class findings.** When two or more confirmed findings share a root pattern, add one extra finding of kind `class`. Answer: what deeper change could eliminate this class of error entirely? Name a concrete mechanism (a type, a lint rule, a schema constraint, a narrower API) and a rough cost. One finding alone does not trigger this step. A class finding never blocks the implement phase's exit; the conductor surfaces it at the gate as a class-elimination candidate, to become a Linear ticket or a brain `Queue/` item on approval.
 
 ## Rules
 
