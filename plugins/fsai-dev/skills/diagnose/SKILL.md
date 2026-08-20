@@ -1,7 +1,7 @@
 ---
 name: diagnose
 description: Diagnose phase of the fsai-dev pipeline. Disciplined diagnosis loop for hard bugs and performance regressions. Reproduce, minimise, hypothesise, instrument, fix, regression-test. Use when the user says "diagnose this" or "debug this", reports a bug, says something is broken/throwing/failing, describes a performance regression, or when invoked by the /fsai-dev:feature conductor as the entry phase of a bugfix run.
-version: 0.3.0
+version: 0.4.0
 ---
 
 # Diagnose Phase
@@ -14,9 +14,9 @@ When exploring the codebase, use the project's domain glossary to get a clear me
 
 - **Phase id**: `diagnose`
 - **Inputs**: a bug report or observed failing behavior (error message, wrong output, perf regression). Optionally production context (Sentry/BetterStack pulls) when available.
-- **Artifacts**: `diagnosis.md` in the run dir: repro steps, the feedback loop used, root cause with file:line evidence, fix direction, and a final "Class elimination" section (see Phase 6). In the conductor's minimal bugfix mode there is no run dir; the diagnosis summary and the class-elimination answer go in the eventual PR description instead.
+- **Artifacts**: `diagnosis.md` in the run dir: repro steps, the feedback loop used, root cause with file:line evidence, fix direction, and a final post-mortem (why chain, root class, class elimination; see Phase 6). In the conductor's minimal bugfix mode there is no run dir; the diagnosis summary and the post-mortem answers go in the eventual PR description instead.
 - **Exit criteria**: root cause demonstrated, not hypothesized: a repro exists and the correct hypothesis has been confirmed by instrumentation or bisection.
-- **Default gate**: notify on root cause.
+- **Default gate**: notify on root cause. When a quick patch and the proper fix diverge, the gate carries the patch-or-proper question with a recommended default (see Phase 5).
 
 Standalone use (outside a pipeline) works as before: same loop, findings reported in conversation and the commit/PR message.
 
@@ -103,6 +103,15 @@ Tool preference:
 
 In a pipeline run, the confirmed root cause is the phase boundary: write `diagnosis.md`, fire the notify gate, and let the implement/testing phases own the fix (this phase's loop and minimised repro carry forward as their verification signal). Standalone, continue here.
 
+**Patch or proper fix.** At the root-cause boundary, decide which fix to write. When a quick patch and the proper fix genuinely diverge, put the question in the gate summary:
+
+- State both options, the cost of each, and the risk the patch carries.
+- Give a recommendation and a default: "patching unless you say otherwise". Continue on the default; an AFK run must not stall here.
+- If the patch is chosen or the default applies, file the proper fix as the class-elimination candidate in the same gate output. A patch must never silently become permanent.
+- Record the choice in the Decision Log.
+
+When the two options do not diverge, say so in one line and continue.
+
 Write the regression test **before the fix**, but only if there is a **correct seam** for it.
 
 A correct seam is one where the test exercises the **real bug pattern** as it occurs at the call site. If the only available seam is too shallow (single-caller test when the bug needs multiple callers, unit test that can't replicate the chain that triggered the bug), a regression test there gives false confidence.
@@ -129,16 +138,34 @@ Required before declaring done:
 - [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message, so the next debugger learns
 
+### Why chain
+
+After the fix is verified, build a short why chain in `diagnosis.md`:
+
+1. Why 1 is the immediate technical cause: the confirmed root cause.
+2. Keep asking why until the answer stops being about this code: why was it written this way, why did nothing catch it.
+3. Stop when one more why would not change what you do next. Two to four whys is typical.
+
+Record the chain as a numbered list. The deepest why is the input to the next two steps.
+
+### Classify the root
+
+Classify the deepest why. More than one class can apply.
+
+- **Code problem**: the structure allowed the bad state. Mechanism: a type that makes the bad state unrepresentable, a lint rule, a schema constraint, a narrower API, a test seam that does not exist yet.
+- **Knowledge problem**: a person did not know a fact that exists. Mechanism: make the fact findable. File a brain glossary term, a feature-note correction, or a teaching note via `/fsai-brain:ingest`. Name the missing fact, never the person.
+- **Standards problem**: the team has no agreed rule, or the rule is not enforced. Mechanism: a brain precedent, plus a candidate rule for `arch-check` or `design-system-check` when the rule is mechanical enough to check.
+
 ### Class elimination
 
-After the fix is verified, answer this question in `diagnosis.md`:
+Then answer this question in `diagnosis.md`:
 
 > What deeper change could we make to eliminate this class of error entirely?
 
 Rules for the answer:
 
-1. Name a concrete mechanism, not an intention. Good answers change what the code can express: a type that makes the bad state unrepresentable, a lint rule, a schema constraint, a narrower API, a test seam that does not exist yet. "Be more careful with X" is not an answer; write "none found" instead and say why.
-2. Give a rough cost (hours, days, or "large refactor") and name the files or layer the change touches.
+1. The answer must address the deepest why in the chain and use the mechanism for its class. "Be more careful with X" is not an answer; write "none found" instead and say why no class mechanism applies.
+2. Give a rough cost (hours, days, or "large refactor") and name the files, notes, or checker the change touches.
 3. Answer after the fix is in, not before. You know more now than when you started.
 
 **Ask always, act separately.** The answer never widens the current fix. Route it instead:

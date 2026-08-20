@@ -1,6 +1,6 @@
 {
   "name": "fsai-dev",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Composable development pipeline: phase skills with standard contracts, a pipeline manifest per task, and a conductor that composes phases and stops at gates.",
   "author": {
     "name": "Bill",

@@ -1,7 +1,7 @@
 ---
 name: feature
 description: Pipeline conductor. Use when the user says "/feature <task>", "run the pipeline", "start a pipeline for X", or "build this feature end to end". Composes fsai-dev phase skills into a gated pipeline; proposes phases, runs them in order, stops only at gates.
-version: 0.5.0
+version: 0.6.0
 ---
 
 # /feature: pipeline conductor
@@ -85,7 +85,10 @@ wave. For each phase:
 6. Apply the gate:
    - `approve`: set phase and pipeline Status to `blocked(gate)`, end your turn with a concise
      summary of the artifact and the specific question needing an answer.
-   - `notify`: print a 2-4 line outcome summary, continue.
+   - `notify`: print a 2-4 line outcome summary, continue. A phase contract may attach a
+     question with a recommended default to its notify gate (for example diagnose's
+     patch-or-proper question). State the question and the default, continue on the default,
+     and record the user's answer in the Decision Log when it arrives.
    - `autonomous`: log to manifest, continue.
 7. Log surprises in Surprises & Discoveries as they happen, not retrospectively.
 
