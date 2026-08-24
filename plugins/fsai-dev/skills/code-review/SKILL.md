@@ -1,7 +1,7 @@
 ---
 name: code-review
 description: Code-review phase of the fsai-dev pipeline. General adversarial review of a wave or branch diff hunting logic bugs, data-clobbering, race conditions, permission gaps, and edge cases that named-rule checkers cannot see. Review mode only, reports findings with concrete failure scenarios, never fixes. Runs as a subagent given only a branch or diff, or inline with refutation discipline when the executor cannot spawn subagents. Use when asked to review a diff for bugs, or when invoked by the implement phase.
-version: 0.4.0
+version: 0.4.1
 ---
 
 # Code-Review Phase
@@ -23,7 +23,7 @@ Subagent-safe: executable from only the inputs above, no conversational context.
 1. **Scope**: `git diff master...<branch>` (or the provided diff). Review changed code and the call sites it touches; do not audit the whole repo.
 2. **Read as a hostile reviewer.** For each changed function or query, actively try to construct a failure: What input, state, or interleaving makes this do the wrong thing? Who else writes this data? What happens on the second call, the concurrent call, the empty list, the deleted row, the other tenant's id?
 3. **Findings need failure scenarios.** A finding is a concrete story: "when X and Y, this produces Z". No failure scenario means no finding. Style opinions, naming preferences, and refactor ideas are out of scope; drop them.
-4. **Verify before reporting.** Trace each suspected bug through the actual code paths (callers, guards upstream, DB constraints). If a guard elsewhere already prevents it, it is not a finding. If an adversarial-review skill is available in the session, apply its refutation discipline: attempt to refute each of your own findings before it goes in the verdict.
+4. **Verify before reporting.** Trace each suspected bug through the actual code paths (callers, guards upstream, DB constraints). If a guard elsewhere already prevents it, it is not a finding. If an `adversarial-review` skill is available in the session, call the Skill tool with `adversarial-review` and apply its refutation discipline: attempt to refute each of your own findings before it goes in the verdict.
 5. **Hunt list**, in priority order:
    - Writes that clobber fields other actors own (partial-update endpoints overwriting unrelated columns)
    - Missing tenancy/permission fences on new queries or endpoints
@@ -41,7 +41,7 @@ Subagent-safe: executable from only the inputs above, no conversational context.
 
    `pass` when the hunt produced nothing that survived verification; say what was hunted so pass is meaningful.
 
-7. **Class findings.** When two or more confirmed findings share a root pattern, add one extra finding of kind `class`. Answer: what deeper change could eliminate this class of error entirely? Name a concrete mechanism (a type, a lint rule, a schema constraint, a narrower API) and a rough cost. One finding alone does not trigger this step. A class finding never blocks the implement phase's exit; the conductor surfaces it at the gate as a class-elimination candidate, to become a Linear ticket or a brain `Queue/` item on approval.
+7. **Class findings.** When two or more confirmed findings share a root pattern, add one extra finding of kind `class`. Answer: what deeper change could eliminate this class of error entirely? Name a concrete mechanism (a type, a lint rule, a schema constraint, a narrower API) and a rough cost. One finding alone does not trigger this step. A class finding never blocks the implement phase's exit; the conductor surfaces it at the gate as a class-elimination candidate, to become a Linear ticket or a vault note on approval.
 
 ## Rules
 

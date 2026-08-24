@@ -30,6 +30,7 @@ Default gate assignments across the catalog: pipeline proposal, plan sign-off, d
 4. **Checkers are subagent-safe.** Phases whose contract says "runs as subagent" must be executable from only their inputs (a diff, a spec path) with no conversational context.
 5. **Fail loudly.** A phase that cannot meet its exit criteria marks itself `blocked(<reason>)` in the manifest and surfaces it — it never marks itself done with caveats buried in prose.
 6. **Write in Simplified Technical English.** See the Writing style section below. It applies to every artifact, verdict, and gate question a phase produces.
+7. **Cross-skill calls use one phrase.** When a phase needs another skill, write: Call the Skill tool with `skill-name`. Softer prose ("use the X skill", "defer to X") fires unreliably. Only call model-invokable targets this way. For a user-invoked skill, tell the user to run `/skill-name` instead; the call cannot work.
 
 ## Writing style
 

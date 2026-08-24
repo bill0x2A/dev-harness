@@ -1,7 +1,7 @@
 ---
 name: diagnose
 description: Diagnose phase of the fsai-dev pipeline. Disciplined diagnosis loop for hard bugs and performance regressions. Reproduce, minimise, hypothesise, instrument, fix, regression-test. Use when the user says "diagnose this" or "debug this", reports a bug, says something is broken/throwing/failing, describes a performance regression, or when invoked by the /fsai-dev:feature conductor as the entry phase of a bugfix run.
-version: 0.4.0
+version: 0.4.1
 ---
 
 # Diagnose Phase
@@ -153,8 +153,8 @@ Record the chain as a numbered list. The deepest why is the input to the next tw
 Classify the deepest why. More than one class can apply.
 
 - **Code problem**: the structure allowed the bad state. Mechanism: a type that makes the bad state unrepresentable, a lint rule, a schema constraint, a narrower API, a test seam that does not exist yet.
-- **Knowledge problem**: a person did not know a fact that exists. Mechanism: make the fact findable. File a brain glossary term, a feature-note correction, or a teaching note via `/fsai-brain:ingest`. Name the missing fact, never the person.
-- **Standards problem**: the team has no agreed rule, or the rule is not enforced. Mechanism: a brain precedent, plus a candidate rule for `arch-check` or `design-system-check` when the rule is mechanical enough to check.
+- **Knowledge problem**: a person did not know a fact that exists. Mechanism: make the fact findable. Record it in the FSAI vault (`~/Documents/fsai-vault`) as a reference or teaching note in the area it belongs to. Name the missing fact, never the person.
+- **Standards problem**: the team has no agreed rule, or the rule is not enforced. Mechanism: a note in the vault's `Practices/` folder, plus a candidate rule for `arch-check` or `design-system-check` when the rule is mechanical enough to check.
 
 ### Class elimination
 
@@ -170,9 +170,9 @@ Rules for the answer:
 
 **Ask always, act separately.** The answer never widens the current fix. Route it instead:
 
-- In a pipeline: the conductor surfaces it at the gate as a "class-elimination candidate". On approval it becomes a Linear ticket or a brain `Queue/` item, not extra scope for this run.
+- In a pipeline: the conductor surfaces it at the gate as a "class-elimination candidate". On approval it becomes a Linear ticket, or a vault note when it is not yet ticket-ready. It is never extra scope for this run.
 - Standalone: state it in the summary and offer to file it. Do not implement it in the same change without the user's explicit yes.
-- If the change ships later and sets a standing rule, record it as a brain precedent so the class stays dead.
+- If the change ships later and sets a standing rule, record it in the vault's `Practices/` folder so the class stays dead.
 
 ## Writing style
 

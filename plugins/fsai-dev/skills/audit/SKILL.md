@@ -1,7 +1,7 @@
 ---
 name: audit
 description: Adversarially verify a capability claim against actual code. Use for "audit this branch for X", "does this branch/code support X", "verify the claim that X", or as the audit phase of an fsai-dev pipeline run. Review mode only, reports a verdict, never fixes. Runs as a subagent given only the claim and a branch or diff.
-version: 0.2.0
+version: 0.2.1
 ---
 
 # Audit Phase
@@ -27,7 +27,7 @@ Adversarially verify one capability claim ("this branch supports full-plan brand
 4. **Converge on root causes.** Group does-not-work findings by shared cause. The valuable output is "one root cause, N downstream casualties", stated as a chain.
 5. **Recommend a fix direction per root cause**, with the alternatives you considered and why they lose. Do not implement anything; this phase only reports.
 
-If an `adversarial-review` skill is available in the session, apply its refutation discipline to your own findings before reporting: try to refute each does-not-work with a path you may have missed.
+If an `adversarial-review` skill is available in the session, call the Skill tool with `adversarial-review` and apply its refutation discipline to your own findings before reporting: try to refute each does-not-work with a path you may have missed.
 
 ## Output shape
 

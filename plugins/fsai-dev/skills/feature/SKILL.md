@@ -1,7 +1,7 @@
 ---
 name: feature
 description: Pipeline conductor. Use when the user says "/feature <task>", "run the pipeline", "start a pipeline for X", or "build this feature end to end". Composes fsai-dev phase skills into a gated pipeline; proposes phases, runs them in order, stops only at gates.
-version: 0.6.0
+version: 0.6.1
 ---
 
 # /feature: pipeline conductor
@@ -67,7 +67,7 @@ wave. For each phase:
 1. Mark `in-progress` in the manifest.
 2. Verify the phase's declared Inputs exist. Missing input: mark `blocked(<reason>)`, surface
    it, stop the pipeline.
-3. Invoke the phase skill via the Skill tool: `fsai-dev:<phase-id>`. Phase skills may defer to
+3. Call the Skill tool with `fsai-dev:<phase-id>`. Phase skills may defer to
    repo-local or other-plugin skills; that is their business, not yours. Spawn it with the
    model its tier assigns and the agent kind it gets, both per the contract's Model routing
    and Agent kind sections. If that model is unavailable or its pool is exhausted, walk the

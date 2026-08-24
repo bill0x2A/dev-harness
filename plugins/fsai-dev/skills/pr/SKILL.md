@@ -1,7 +1,7 @@
 ---
 name: pr
 description: Create the pull request for a completed pipeline branch, delegating to the pr-description skill when installed. Use as the pr phase of an fsai-dev pipeline run.
-version: 0.4.0
+version: 0.4.1
 ---
 
 # PR Phase
@@ -22,7 +22,7 @@ Open the pull request for the implemented, tested branch.
 2. Audit what is staged for the PR before pushing:
    - Never commit plan or spec documents; run-dir artifacts (`.agent/pipelines/`) stay local.
    - In fsai, never commit migration `_journal.json` or snapshot files.
-3. If a `pr-description` skill is available in the session, invoke it via the Skill tool and follow it. It owns description quality; this phase supplies the plan and branch context.
+3. If a `pr-description` skill is available in the session, call the Skill tool with `pr-description` and follow it. It owns description quality; this phase supplies the plan and branch context.
 4. Otherwise follow the target repo's conventions. In fsai:
    - Title: `<type>(<pkg>): <description>` with types `feat`/`fix`/`refactor`/`tooling` and package abbreviations `bp` (brand-dashboard), `ap` (applicant-portal), `bd` (backend), `sdk`; omit the package for cross-cutting changes.
    - Body: use `.github/PULL_REQUEST_TEMPLATE.md` and the `docs/pr-descriptions.md` standard: summary says what, not how; screenshots for UI changes; testing checklist; a "not included" section for deferred work (pull this from the plan's decision log and unshipped waves).
