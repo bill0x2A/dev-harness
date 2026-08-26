@@ -33,7 +33,7 @@ Status: proposed | running | blocked(<phase>) | done | abandoned
 | 6 | backend-testing | autonomous | pending | — |
 | 7 | pr | approve | pending | PR URL(s) |
 | — | design-sync | — | skipped: no UI in this task | — |
-| — | e2e | — | skipped: v2, no suite exists yet | — |
+| — | e2e | — | skipped: no user journey changes | — |
 
 ## Decision Log
 

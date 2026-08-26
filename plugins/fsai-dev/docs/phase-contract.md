@@ -60,7 +60,7 @@ This section exists because unclear phase output is a correctness problem, not a
 | `research` | API/library/approach research → decision doc with a recommendation | notify | v1 |
 | `grill` | Interrogate the feature idea against domain language and docs → sharpened spec | approve (spec sign-off) | v1 |
 | `plan` | Author an ExecPlan from the spec, broken into waves | approve (plan sign-off) | v1 (thin; defers to target repo's PLANS.md) |
-| `design-sync` | MagicPath pull/push + reconcile designs against spec | approve (design sign-off) | v2 (wraps existing `magicpath` skill) |
+| `design-sync` | Propose, reconcile, or pull MagicPath designs against the spec; wraps the target repo's `magicpath` skill; runs after grill, before plan | approve (design sign-off) | v1 |
 | `implement` | Execute plan waves; per-wave verification; delegates code to subagents | autonomous, notify per wave | v1 |
 | `code-review` | General adversarial code review of a wave/branch diff — logic bugs the rule checkers can't see; runs as subagent | autonomous (findings block implement exit) | v1 |
 | `arch-check` | Backend diff vs 3-layer architecture + domain rules; runs as subagent | autonomous (findings block implement exit) | v1 |
@@ -68,7 +68,7 @@ This section exists because unclear phase output is a correctness problem, not a
 | `audit` | Adversarially verify a capability claim against the code ("does this branch support X?"); runs as subagent | notify | v1 |
 | `backend-testing` | Write/run backend tests; encodes fsai lane knowledge and mock traps | autonomous | v1 |
 | `frontend-testing` | Write/run frontend unit tests; encodes brand-dashboard vitest node-env and test-seam knowledge | autonomous | v1 |
-| `e2e` | Playwright suites: write, run, fix | notify | v2 |
+| `e2e` | Playwright suites for the touched journeys: write, run, fix; local stack only | notify | v1 |
 | `pr` | Create the PR (delegates to `pr-description` skill where installed) | approve (pre-merge) | v1 |
 | `prod-context` | Pull Sentry/BetterStack context for bugfixing (folds into `diagnose`) | autonomous | v2 |
 | `staging-e2e` | Post-merge staging verification | n/a (CI/scheduled agent, not a session phase) | v2 |
@@ -79,8 +79,8 @@ v2 phases are listed so the conductor can name them as explicitly skipped rather
 
 Phases are assigned a model by cognitive demand. Never `haiku`.
 
-- **Judgment → `fable`**: `diagnose`, `code-review`, `audit`, `grill`, `plan`, `research`. These generate hypotheses, construct failure scenarios, and make architecture decisions. A weaker model fails invisibly here: a bad root cause reads exactly like a good one.
-- **Execution → `opus`**: `implement` waves, `backend-testing`, `frontend-testing`, `arch-check`, `design-system-check`, `pr`. These work against an already-decided design or a named rule list. The `code-review` / rule-checker split exists precisely because the first is judgment and the second is matching.
+- **Judgment → `fable`**: `diagnose`, `code-review`, `audit`, `grill`, `plan`, `research`, `design-sync` (its canvas-authoring subagents run on the execution tier). These generate hypotheses, construct failure scenarios, and make architecture decisions. A weaker model fails invisibly here: a bad root cause reads exactly like a good one.
+- **Execution → `opus`**: `implement` waves, `backend-testing`, `frontend-testing`, `arch-check`, `design-system-check`, `pr`, `e2e`. These work against an already-decided design or a named rule list. The `code-review` / rule-checker split exists precisely because the first is judgment and the second is matching.
 - **Mechanical → `sonnet`**: inventory sweeps, schema-parity preflight, manifest bookkeeping, and any phase step that is search-and-tabulate rather than decide.
 
 These pools have independent quotas, so exhaustion is an availability problem, not a cost one. When a tier's model is unavailable, walk the preference order `fable` > `opus` > `sonnet` to the next available model, log the substitution in the Decision Log, and continue: a run must never stall because one pool is dry.
@@ -93,8 +93,8 @@ A run may pin a phase to a specific model (Decision Log entry required); the tie
 
 Phases run as one of two agent kinds, which is a real cost lever because a fork inherits the parent's entire conversation context:
 
-- **fork** — needs the conversation's design rationale: `grill`, `plan`, `research`, and any phase resuming mid-discussion.
-- **fresh** — needs only its declared Inputs: every subagent-safe phase (`arch-check`, `design-system-check`, `code-review`, `audit`), plus `implement` waves working from a written plan, `backend-testing`, `frontend-testing`, `pr`, and mechanical sweeps.
+- **fork** — needs the conversation's design rationale: `grill`, `plan`, `research`, `design-sync`, and any phase resuming mid-discussion.
+- **fresh** — needs only its declared Inputs: every subagent-safe phase (`arch-check`, `design-system-check`, `code-review`, `audit`), plus `implement` waves working from a written plan, `backend-testing`, `frontend-testing`, `pr`, `e2e`, and mechanical sweeps.
 
 Subagent-safe by contract already means "executable from Inputs alone", so those phases must run `fresh` unless a run documents why not. When spawning `fresh`, pass the artifact paths (not the artifacts' contents) so the agent reads what it needs.
 

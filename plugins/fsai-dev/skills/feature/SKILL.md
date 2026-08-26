@@ -1,7 +1,7 @@
 ---
 name: feature
 description: Pipeline conductor. Use when the user says "/feature <task>", "run the pipeline", "start a pipeline for X", or "build this feature end to end". Composes fsai-dev phase skills into a gated pipeline; proposes phases, runs them in order, stops only at gates.
-version: 0.6.1
+version: 0.7.0
 ---
 
 # /feature: pipeline conductor
@@ -27,7 +27,7 @@ warrants stricter or looser). Every catalog phase appears in the proposal: selec
 order, or skipped with a reason. v2 phases are always skipped-with-reason, never selected.
 
 Typical shapes:
-- Full-stack feature: research, grill, plan, implement, arch-check, design-system-check, code-review, backend-testing, frontend-testing, pr
+- Full-stack feature: research, grill, design-sync (when the task changes UI), plan, implement, arch-check, design-system-check, code-review, backend-testing, frontend-testing, e2e (when a user journey changes), pr
 - Backend-only: drop design-system-check and frontend-testing
 - Bugfix: diagnose, implement, then the checkers for the surface (arch-check + backend-testing
   for backend bugs; design-system-check + frontend-testing for frontend bugs), code-review, pr.
