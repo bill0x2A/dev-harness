@@ -79,8 +79,8 @@ v2 phases are listed so the conductor can name them as explicitly skipped rather
 
 Phases are assigned a model by cognitive demand. Never `haiku`.
 
-- **Judgment → `fable`**: `diagnose`, `code-review`, `audit`, `grill`, `plan`, `research`, `design-sync` (its canvas-authoring subagents run on the execution tier). These generate hypotheses, construct failure scenarios, and make architecture decisions. A weaker model fails invisibly here: a bad root cause reads exactly like a good one.
-- **Execution → `opus`**: `implement` waves, `backend-testing`, `frontend-testing`, `arch-check`, `design-system-check`, `pr`, `e2e`. These work against an already-decided design or a named rule list. The `code-review` / rule-checker split exists precisely because the first is judgment and the second is matching.
+- **Judgment → `fable`**: `diagnose`, `code-review`, `audit`, `grill`, `plan`, `research`. These generate hypotheses, construct failure scenarios, and make architecture decisions. A weaker model fails invisibly here: a bad root cause reads exactly like a good one.
+- **Execution → `opus`**: `implement` waves, `backend-testing`, `frontend-testing`, `arch-check`, `design-system-check`, `pr`, `e2e`, `design-sync`. These work against an already-decided design or a named rule list. `design-sync` sits here on purpose: MagicPath sessions burn tokens aggressively, so every step that calls `magicpath-ai` runs on `opus`, in whichever phase it happens. Never spawn a MagicPath session on `fable`. The `code-review` / rule-checker split exists precisely because the first is judgment and the second is matching.
 - **Mechanical → `sonnet`**: inventory sweeps, schema-parity preflight, manifest bookkeeping, and any phase step that is search-and-tabulate rather than decide.
 
 These pools have independent quotas, so exhaustion is an availability problem, not a cost one. When a tier's model is unavailable, walk the preference order `fable` > `opus` > `sonnet` to the next available model, log the substitution in the Decision Log, and continue: a run must never stall because one pool is dry.

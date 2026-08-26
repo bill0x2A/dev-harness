@@ -1,7 +1,7 @@
 ---
 name: design-sync
 description: Design-sync phase of the fsai-dev pipeline. Propose MagicPath designs from a spec, reconcile existing designs against the spec, or pull a selected revision as a fidelity handoff for implement. Use when a task changes UI and the user wants designs to iterate on, when designs exist and must be checked against the spec, or when invoked by the /fsai-dev:feature conductor.
-version: 0.1.0
+version: 0.1.1
 ---
 
 # Design-Sync Phase
@@ -16,7 +16,7 @@ Keep the spec and the MagicPath canvas in agreement. This phase wraps the target
 - **Exit criteria**: every surface in scope has a component on the canvas with FSAI tokens applied and a verified preview image; the reconciliation table has no unresolved row; the user approved the designs.
 - **Default gate**: `approve` (design sign-off).
 
-Agent kind: `fork` for the brief and the reconciliation (they need the spec's reasoning). Canvas authoring runs in `fresh` subagents from the written brief. Model tier: judgment for this phase; execution for the authoring subagents.
+Agent kind: `fork` for the brief and the reconciliation (they need the spec's reasoning). Canvas authoring runs in `fresh` subagents from the written brief. Model: `opus` for the whole phase, including every subagent. MagicPath sessions burn tokens aggressively; never run any `magicpath-ai` step on `fable`.
 
 Position in a run: after `grill`, before `plan`. The plan phase reads `design.md` and cites design decisions by row.
 
